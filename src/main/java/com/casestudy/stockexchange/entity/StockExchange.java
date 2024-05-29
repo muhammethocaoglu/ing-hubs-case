@@ -43,4 +43,12 @@ public class StockExchange {
         }
     }
 
+    public void removeStock(Long stockId) {
+        Stock stock = this.stocks.stream().filter(s -> s.getId().equals(stockId)).findFirst().orElse(null);
+        if (stock != null) {
+            this.stocks.remove(stock);
+            stock.getStockExchanges().remove(this);
+        }
+    }
+
 }
