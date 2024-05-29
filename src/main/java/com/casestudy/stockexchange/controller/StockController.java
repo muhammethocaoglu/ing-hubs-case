@@ -42,6 +42,7 @@ public class StockController {
                 .orElseThrow(() -> new RuntimeException(String.format("Stock with id %s not found",
                         updateStockPriceRequest.getId())));
         stock.setCurrentPrice(updateStockPriceRequest.getCurrentPrice());
+        stock.setLastUpdate(Instant.now().toEpochMilli());
         stockRepository.save(stock);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -53,6 +54,7 @@ public class StockController {
                         deleteStockRequest.getId())));
         for (StockExchange stockExchange : stock.getStockExchanges()) {
             stockExchange.getStocks().remove(stock);
+            stockExchange.updateLiveInMarket();
         }
 
         stockRepository.delete(stock);

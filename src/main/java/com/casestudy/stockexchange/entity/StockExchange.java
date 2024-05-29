@@ -38,17 +38,20 @@ public class StockExchange {
     public void addStock(Stock stock) {
         this.stocks.add(stock);
         stock.getStockExchanges().add(this);
-        if(this.stocks.size() >= 5){
-            this.liveInMarket = true;
-        }
+        updateLiveInMarket();
     }
 
     public void removeStock(Long stockId) {
         Stock stock = this.stocks.stream().filter(s -> s.getId().equals(stockId)).findFirst().orElse(null);
         if (stock != null) {
             this.stocks.remove(stock);
+            updateLiveInMarket();
             stock.getStockExchanges().remove(this);
         }
+    }
+
+    public void updateLiveInMarket() {
+        this.liveInMarket = this.stocks.size() >= 5;
     }
 
 }
