@@ -1,17 +1,15 @@
 package com.casestudy.stockexchange.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "stock_exchange")
-@Data
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,6 +18,7 @@ public class StockExchange {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
     private String name;
 
     private String description;
@@ -35,5 +34,13 @@ public class StockExchange {
             joinColumns = {@JoinColumn(name = "stock_exchange_id")},
             inverseJoinColumns = {@JoinColumn(name = "stock_id")})
     private Set<Stock> stocks = new HashSet<>();
+
+    public void addStock(Stock stock) {
+        this.stocks.add(stock);
+        stock.getStockExchanges().add(this);
+        if(this.stocks.size() >= 5){
+            this.liveInMarket = true;
+        }
+    }
 
 }
