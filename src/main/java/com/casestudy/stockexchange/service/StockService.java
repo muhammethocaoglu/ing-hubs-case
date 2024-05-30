@@ -6,6 +6,7 @@ import com.casestudy.stockexchange.controller.dto.GetStockResponse;
 import com.casestudy.stockexchange.controller.dto.UpdateStockPriceRequest;
 import com.casestudy.stockexchange.entity.Stock;
 import com.casestudy.stockexchange.entity.StockExchange;
+import com.casestudy.stockexchange.exception.ResourceNotFoundException;
 import com.casestudy.stockexchange.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -65,7 +66,7 @@ public class StockService {
 
     Stock getById(Long id) {
         return stockRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(String.format("Stock with id %s not found",
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Stock with id %s not found",
                         id)));
     }
 
