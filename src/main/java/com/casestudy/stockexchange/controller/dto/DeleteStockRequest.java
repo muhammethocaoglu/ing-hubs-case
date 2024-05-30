@@ -1,5 +1,6 @@
 package com.casestudy.stockexchange.controller.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Data
@@ -9,5 +10,6 @@ import lombok.*;
 @Setter
 @Builder
 public class DeleteStockRequest {
+    @NotNull(message = "Id is required")
     private Long id;
 }

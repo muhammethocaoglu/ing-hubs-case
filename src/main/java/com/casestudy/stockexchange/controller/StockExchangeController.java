@@ -7,6 +7,7 @@ import com.casestudy.stockexchange.exception.EntityAlreadyExistsException;
 import com.casestudy.stockexchange.exception.ResourceNotFoundException;
 import com.casestudy.stockexchange.repository.StockExchangeRepository;
 import com.casestudy.stockexchange.repository.StockRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class StockExchangeController {
     private final StockRepository stockRepository;
 
     @PostMapping("")
-    public ResponseEntity<CreateStockExchangeResponse> create(@RequestBody CreateStockExchangeRequest createStockExchangeRequest) {
+    public ResponseEntity<CreateStockExchangeResponse> create(@Valid @RequestBody CreateStockExchangeRequest createStockExchangeRequest) {
         stockExchangeRepository.findByName(createStockExchangeRequest.getName())
                 .ifPresent(stockExchange -> {
                     throw new EntityAlreadyExistsException(String.format("Stock exchange with name %s already exists",
@@ -48,7 +49,7 @@ public class StockExchangeController {
 
     @PutMapping("/{name}")
     public ResponseEntity<Void> addStock(@PathVariable(value = "name") String stockExchangeName,
-                                         @RequestBody AddStockRequest addStockRequest) {
+                                         @Valid @RequestBody AddStockRequest addStockRequest) {
         StockExchange stockExchange = stockExchangeRepository.findByName(stockExchangeName)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("Stock exchange with name %s not found", stockExchangeName)));
         Stock stock = stockRepository.findById(addStockRequest.getStockId())
@@ -61,7 +62,7 @@ public class StockExchangeController {
 
     @DeleteMapping("/{name}")
     public ResponseEntity<Void> deleteStock(@PathVariable(value = "name") String stockExchangeName,
-                                            @RequestBody DeleteStockFromStockExchangeRequest deleteStockFromStockExchangeRequest) {
+                                            @Valid @RequestBody DeleteStockFromStockExchangeRequest deleteStockFromStockExchangeRequest) {
         StockExchange stockExchange = stockExchangeRepository.findByName(stockExchangeName)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("Stock exchange with name %s not found", stockExchangeName)));
         Stock stock = stockRepository.findById(deleteStockFromStockExchangeRequest.getStockId())

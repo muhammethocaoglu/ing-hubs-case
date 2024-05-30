@@ -1,5 +1,7 @@
 package com.casestudy.stockexchange.controller.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Data
@@ -9,5 +11,6 @@ import lombok.*;
 @Setter
 @Builder
 public class AddStockRequest {
+    @NotNull(message = "Stock id is required")
     private Long stockId;
 }

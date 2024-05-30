@@ -1,10 +1,7 @@
 package com.casestudy.stockexchange.controller;
 
 import com.casestudy.stockexchange.CleanupH2DatabaseTestListener;
-import com.casestudy.stockexchange.controller.dto.AddStockRequest;
-import com.casestudy.stockexchange.controller.dto.CreateStockExchangeRequest;
-import com.casestudy.stockexchange.controller.dto.CreateStockRequest;
-import com.casestudy.stockexchange.controller.dto.CreateStockResponse;
+import com.casestudy.stockexchange.controller.dto.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -22,8 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.is;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -78,7 +77,25 @@ class StockExchangeControllerTest {
     }
 
     @Test
-    void test_should_return_no_content_when_add_stock_to_stock_exchange() throws Exception {
+    void test_should_return_bad_request_when_create_stock_exchange() throws Exception {
+        // given
+        CreateStockExchangeRequest createStockExchangeRequest = CreateStockExchangeRequest.builder()
+                .name("test stock exchange")
+                .build();
+        // when
+        // then
+        mockMvc.perform(post("/api/v1/stock-exchange")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createStockExchangeRequest))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(content()
+                        .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("errors").isNotEmpty());
+    }
+
+    @Test
+    void test_should_return_no_content_when_add_and_delete_stock_from_stock_exchange_or_delete_stock() throws Exception {
         CreateStockExchangeRequest createStockExchangeRequest = CreateStockExchangeRequest.builder()
                 .name("test stock exchange")
                 .description("test stock exchange description")
@@ -135,6 +152,59 @@ class StockExchangeControllerTest {
                                 .stream()
                                 .map(createStockResponse -> createStockResponse.getId().intValue())
                                 .toArray())));
+
+        // when
+        mockMvc.perform(delete(String.format("/api/v1/stock-exchange/%s", createStockExchangeRequest.getName()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(DeleteStockFromStockExchangeRequest
+                                .builder()
+                                .stockId(createStockResponseList.get(0).getId())
+                                .build()))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        //then
+        mockMvc.perform(get(String.format("/api/v1/stock-exchange/%s", createStockExchangeRequest.getName())))
+                .andExpect(status().isOk())
+                .andExpect(content()
+                        .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(createStockResponseList.get(1).getId()), Long.class));
+
+        // when
+        mockMvc.perform(delete("/api/v1/stock")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(DeleteStockRequest
+                                .builder()
+                                .id(createStockResponseList.get(1).getId())
+                                .build()))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        // then
+        mockMvc.perform(get(String.format("/api/v1/stock-exchange/%s", createStockExchangeRequest.getName())))
+                .andExpect(status().isOk())
+                .andExpect(content()
+                        .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(0)));
+
+
+
+    }
+
+    @Test
+    void test_should_return_not_found_when_add_stock_to_stock_exchange_if_stock_exchange_does_not_exist() throws Exception {
+        // given
+        AddStockRequest addStockRequest = AddStockRequest.builder().build();
+
+        // when
+        // then
+        mockMvc.perform(put(String.format("/api/v1/stock-exchange/%s", "test stock exchange"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(addStockRequest))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("error").isNotEmpty());
 
     }
 

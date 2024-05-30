@@ -4,6 +4,7 @@ import com.casestudy.stockexchange.controller.dto.*;
 import com.casestudy.stockexchange.entity.Stock;
 import com.casestudy.stockexchange.entity.StockExchange;
 import com.casestudy.stockexchange.repository.StockRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ public class StockController {
     private final StockRepository stockRepository;
 
     @PostMapping("")
-    public ResponseEntity<CreateStockResponse> create(@RequestBody CreateStockRequest createStockRequest) {
+    public ResponseEntity<CreateStockResponse> create(@Valid @RequestBody CreateStockRequest createStockRequest) {
         Stock stockCreated = stockRepository.save(Stock.builder()
                 .name(createStockRequest.getName())
                 .description(createStockRequest.getDescription())
@@ -39,7 +40,7 @@ public class StockController {
     }
 
     @PutMapping("")
-    public ResponseEntity<CreateStockResponse> updateCurrentPrice(@RequestBody UpdateStockPriceRequest updateStockPriceRequest) {
+    public ResponseEntity<Void> updateCurrentPrice(@Valid @RequestBody UpdateStockPriceRequest updateStockPriceRequest) {
         Stock stock = stockRepository.findById(updateStockPriceRequest.getId())
                 .orElseThrow(() -> new RuntimeException(String.format("Stock with id %s not found",
                         updateStockPriceRequest.getId())));
@@ -50,7 +51,7 @@ public class StockController {
     }
 
     @DeleteMapping("")
-    public ResponseEntity<Void> delete(@RequestBody DeleteStockRequest deleteStockRequest) {
+    public ResponseEntity<Void> delete(@Valid @RequestBody DeleteStockRequest deleteStockRequest) {
         Stock stock = stockRepository.findById(deleteStockRequest.getId())
                 .orElseThrow(() -> new RuntimeException(String.format("Stock with id %s not found",
                         deleteStockRequest.getId())));
