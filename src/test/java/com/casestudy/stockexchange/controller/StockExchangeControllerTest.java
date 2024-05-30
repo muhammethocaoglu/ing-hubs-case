@@ -195,7 +195,7 @@ class StockExchangeControllerTest {
     @Test
     void test_should_return_not_found_when_add_stock_to_stock_exchange_if_stock_exchange_does_not_exist() throws Exception {
         // given
-        AddStockRequest addStockRequest = AddStockRequest.builder().build();
+        AddStockRequest addStockRequest = AddStockRequest.builder().stockId(1L).build();
 
         // when
         // then
