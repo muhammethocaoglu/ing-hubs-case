@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.util.HashSet;
 
 
 @RestController
@@ -26,6 +27,7 @@ public class StockController {
                 .description(createStockRequest.getDescription())
                 .currentPrice(createStockRequest.getCurrentPrice())
                 .lastUpdate(Instant.now().toEpochMilli())
+                .stockExchanges(new HashSet<>())
                 .build());
         return new ResponseEntity<>(CreateStockResponse.builder()
                 .id(stockCreated.getId())
