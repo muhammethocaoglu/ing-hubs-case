@@ -8,8 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 
 @RestController
 @RequestMapping("/api/v1/stock-exchange")
@@ -38,7 +36,7 @@ public class StockExchangeController {
     }
 
     @GetMapping("/{name}")
-    public ResponseEntity<List<ListStockResponseItem>> listStocks(@PathVariable(value = "name") String stockExchangeName) {
-        return new ResponseEntity<>(stockExchangeService.listStocks(stockExchangeName), HttpStatus.OK);
+    public ResponseEntity<GetStockExchangeWithStocksResponse> listStocks(@PathVariable(value = "name") String stockExchangeName) {
+        return new ResponseEntity<>(stockExchangeService.getWithStocks(stockExchangeName), HttpStatus.OK);
     }
 }

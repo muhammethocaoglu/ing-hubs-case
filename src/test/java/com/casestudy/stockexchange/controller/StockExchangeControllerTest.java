@@ -100,16 +100,15 @@ class StockExchangeControllerTest {
                 .name("test stock exchange")
                 .description("test stock exchange description")
                 .build();
-        List<CreateStockRequest> createStockRequestList = List.of(CreateStockRequest.builder()
-                        .name("test stock")
-                        .description("test stock description")
-                        .currentPrice(1.34)
-                        .build(),
-                CreateStockRequest.builder()
-                        .name("stock 2")
-                        .description("desc 2")
-                        .currentPrice(3.32)
-                        .build());
+        List<CreateStockRequest> createStockRequestList = new ArrayList<>();
+        for(int i = 0 ; i < 5 ; i++){
+            createStockRequestList.add(CreateStockRequest.builder()
+                    .name("test stock " + i)
+                    .description("test stock description" + 1)
+                    .currentPrice(1.34 + i)
+                    .build());
+        }
+
         List<CreateStockResponse> createStockResponseList = new ArrayList<>();
         List<AddStockRequest> addStockRequestList = new ArrayList<>();
 
@@ -147,11 +146,12 @@ class StockExchangeControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content()
                         .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[*].id")
+                .andExpect(jsonPath("$.stocks[*].id")
                         .value(containsInAnyOrder(createStockResponseList
                                 .stream()
                                 .map(createStockResponse -> createStockResponse.getId().intValue())
-                                .toArray())));
+                                .toArray())))
+                .andExpect(jsonPath("$.liveInMarket", is(true)));
 
         // when
         mockMvc.perform(delete(String.format("/api/v1/stock-exchange/%s", createStockExchangeRequest.getName()))
@@ -168,8 +168,8 @@ class StockExchangeControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content()
                         .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].id", is(createStockResponseList.get(1).getId()), Long.class));
+                .andExpect(jsonPath("$.stocks", hasSize(4)))
+                .andExpect(jsonPath("$.liveInMarket", is(false)));
 
         // when
         mockMvc.perform(delete("/api/v1/stock")
@@ -186,9 +186,7 @@ class StockExchangeControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content()
                         .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(0)));
-
-
+                .andExpect(jsonPath("$.stocks", hasSize(3)));
 
     }
 

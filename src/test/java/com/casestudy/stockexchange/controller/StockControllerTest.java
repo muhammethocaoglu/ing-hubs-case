@@ -18,6 +18,7 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -68,7 +69,8 @@ class StockControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content()
                         .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.currentPrice", is(updateStockPriceRequest.getCurrentPrice())));
+                .andExpect(jsonPath("$.currentPrice", is(updateStockPriceRequest.getCurrentPrice())))
+                .andExpect(jsonPath("$.lastUpdate", greaterThan(createStockResponse.getLastUpdate())));
 
         // when
         // then

@@ -53,18 +53,24 @@ public class StockExchangeService {
         stockExchangeRepository.save(stockExchange);
     }
 
-    public List<ListStockResponseItem> listStocks(String stockExchangeName) {
+    public GetStockExchangeWithStocksResponse getWithStocks(String stockExchangeName) {
         StockExchange stockExchange = getByName(stockExchangeName);
         List<Stock> stockList = stockService.getAllByStockExchangeId(stockExchange.getId());
-        return stockList.stream()
-                .map(stock -> ListStockResponseItem.builder()
-                        .id(stock.getId())
-                        .name(stock.getName())
-                        .description(stock.getDescription())
-                        .currentPrice(stock.getCurrentPrice())
-                        .lastUpdate(stock.getLastUpdate())
-                        .build())
-                .toList();
+        return GetStockExchangeWithStocksResponse.builder()
+                .id(stockExchange.getId())
+                .name(stockExchange.getName())
+                .description(stockExchange.getDescription())
+                .liveInMarket(stockExchange.getLiveInMarket())
+                .stocks(stockList.stream()
+                        .map(stock -> ListStockResponseItem.builder()
+                                .id(stock.getId())
+                                .name(stock.getName())
+                                .description(stock.getDescription())
+                                .currentPrice(stock.getCurrentPrice())
+                                .lastUpdate(stock.getLastUpdate())
+                                .build())
+                        .toList())
+                .build();
     }
 
     private StockExchange getByName(String stockExchangeName) {
